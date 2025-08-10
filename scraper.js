@@ -17,7 +17,7 @@ async function scrapeYouTube(channelUrl) {
     await page.setUserAgent(
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
     );
-    await page.goto(channelUrl, { waitUntil: "networkidle2", timeout: 60000 });
+    await page.goto(channelUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
 
     // Auto-scroll to load more videos
     let prevHeight;
