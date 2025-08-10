@@ -11,8 +11,9 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "puppeteer": "^21.3.8"
+    "puppeteer-core": "^24.16.0"
   }
 }
