@@ -3,7 +3,7 @@ const cors = require('cors');
 const scrapeYouTube = require('./scraper');
 
 const app = express();
-const PORT = 3458;
+const PORT = process.env.PORT || 3458;
 
 const allowedOrigins = ['http://localhost:5173', 'https://jusst.netlify.app'];
 
@@ -34,3 +34,4 @@ app.get('/yt-scrapper/api/videos', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
