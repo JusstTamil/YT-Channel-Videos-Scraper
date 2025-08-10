@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: yt-channel-videos-scraper
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: true
+    buildFilter:
+      paths:
+        - package.json
+        - package-lock.json
+        - index.js
+        - scraper.js

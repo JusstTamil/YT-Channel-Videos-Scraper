@@ -2,16 +2,23 @@ const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 
 async function scrapeYouTube(channelUrl) {
+    // Check if we're in a production environment (like Render)
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     const browser = await puppeteer.launch({
-        executablePath: await chromium.executablePath(),
+        executablePath: isProduction 
+            ? process.env.PUPPETEER_EXECUTABLE_PATH || await chromium.executablePath()
+            : await chromium.executablePath(),
         args: [
             ...chromium.args,
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
+            "--single-process",
+            "--no-zygote",
         ],
-        headless: chromium.headless,
+        headless: "new",
     });
     const page = await browser.newPage();
     await page.setUserAgent(

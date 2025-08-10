@@ -20,14 +20,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.send('YouTube Channel Videos Scraper API is running!');
+});
+
 app.get('/api/videos', async (req, res) => {
   try {
     const channelUrl = req.query.channel || 'https://www.youtube.com/@jusst1523/videos';
+    console.log(`Starting scrape for: ${channelUrl}`);
     const data = await scrapeYouTube(channelUrl);
+    console.log(`Scraping complete. Found ${data.length} videos`);
     res.json(data);
   } catch (error) {
     console.error('Scraping failed:', error);
-    res.status(500).json({ error: 'Scraping failed.' });
+    res.status(500).json({ error: 'Scraping failed.', message: error.message });
   }
 });
 
