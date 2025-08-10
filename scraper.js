@@ -59,7 +59,7 @@ async function scrapeYouTube(channelUrl) {
     console.log(`Page loaded: ${await page.title()}`);
     
     // Wait for some time to ensure JavaScript runs and content renders
-    await page.waitForTimeout(5000);
+    await page.waitFor(5000);
 
     console.log('Starting to scroll the page to load more content...');
     // More robust scrolling that mimics human behavior
@@ -91,7 +91,7 @@ async function scrapeYouTube(channelUrl) {
             });
             
             // Wait for content to load
-            await page.waitForTimeout(2000);
+            await page.waitFor(2000);
             
             // Get new height and check video count
             const newHeight = await page.evaluate('document.documentElement.scrollHeight');
@@ -113,7 +113,7 @@ async function scrapeYouTube(channelUrl) {
         await page.evaluate('window.scrollTo(0, document.documentElement.scrollHeight)');
         
         // Wait a moment for any final loading
-        await page.waitForTimeout(2000);
+        await page.waitFor(2000);
         
     } catch (err) {
         console.error("Scrolling error:", err);
