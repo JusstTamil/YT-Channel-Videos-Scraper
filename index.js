@@ -20,7 +20,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.get('/yt-scrapper/api/videos', async (req, res) => {
+app.get('/api/videos', async (req, res) => {
   try {
     const channelUrl = req.query.channel || 'https://www.youtube.com/@jusst1523/videos';
     const data = await scrapeYouTube(channelUrl);
