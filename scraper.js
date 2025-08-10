@@ -9,30 +9,41 @@ async function scrapeYouTube(channelUrl) {
     const isRender = process.env.RENDER === 'true';
     console.log(`Environment: ${isProduction ? 'Production' : 'Development'}${isRender ? ' (Render)' : ''}`);
     
-    // Add a default viewport that mimics a typical browser window
-    const browser = await puppeteer.launch({
-        executablePath: isProduction 
-            ? process.env.PUPPETEER_EXECUTABLE_PATH || await chromium.executablePath()
-            : await chromium.executablePath(),
-        args: [
-            ...chromium.args,
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage",
-            "--disable-gpu",
-            "--single-process",
-            "--no-zygote",
-            "--window-size=1920,1080",
-            "--hide-scrollbars",
-            "--disable-notifications"
-        ],
-        headless: "new",
-        defaultViewport: {
-            width: 1920,
-            height: 1080
-        },
-        ignoreHTTPSErrors: true,
-    });
+    // Increase the browser launch timeout
+    let browser;
+    try {
+        console.log('Launching browser...');
+        browser = await puppeteer.launch({
+            executablePath: isProduction 
+                ? process.env.PUPPETEER_EXECUTABLE_PATH || await chromium.executablePath()
+                : await chromium.executablePath(),
+            args: [
+                ...chromium.args,
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--single-process",
+                "--no-zygote",
+                "--window-size=1280,720", // Reduced size to save memory
+                "--hide-scrollbars",
+                "--disable-notifications",
+                "--disable-extensions",
+                "--disable-translate"
+            ],
+            headless: true, // Using the older headless mode for better compatibility
+            defaultViewport: {
+                width: 1280,
+                height: 720
+            },
+            ignoreHTTPSErrors: true,
+            timeout: 60000, // 60 second timeout for browser launch
+        });
+        console.log('Browser launched successfully');
+    } catch (err) {
+        console.error('Failed to launch browser:', err);
+        throw new Error(`Browser launch failed: ${err.message}`);
+    }
     const page = await browser.newPage();
     
     // Set a more realistic user agent - use latest Chrome version
@@ -217,8 +228,42 @@ const videos = await page.evaluate(() => {
     });
 });
 
-    await browser.close();
+    // Make sure to close the browser even if there's an error
+    try {
+        if (browser) {
+            await browser.close();
+            console.log('Browser closed successfully');
+        }
+    } catch (closeErr) {
+        console.error('Error closing browser:', closeErr);
+    }
+    
     return videos;
 }
 
-module.exports = scrapeYouTube;
+// Add retry mechanism to handle temporary failures
+async function scrapeWithRetry(channelUrl, maxRetries = 2) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`Attempt ${attempt} of ${maxRetries}`);
+            const result = await scrapeYouTube(channelUrl);
+            return result;
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed:`, error);
+            lastError = error;
+            
+            // Wait before retrying
+            if (attempt < maxRetries) {
+                const waitTime = attempt * 3000; // Increase wait time with each retry
+                console.log(`Waiting ${waitTime}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
+        }
+    }
+    
+    throw lastError;
+}
+
+module.exports = scrapeWithRetry;

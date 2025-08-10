@@ -2,13 +2,20 @@ services:
   - type: web
     name: yt-channel-videos-scraper
     env: node
+    plan: standard
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
         value: true
+      - key: RENDER
+        value: true
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+    autoDeploy: true
     buildFilter:
       paths:
         - package.json
