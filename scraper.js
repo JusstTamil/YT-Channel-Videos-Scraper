@@ -157,7 +157,7 @@ const videos = await page.evaluate(() => {
     
     return elements.map((el) => {
         // Title can be in various places depending on YouTube's current layout
-        const titleEl = el.querySelector("#video-title, .title, [title]");
+        const titleEl = el.querySelector("#video-title");
         const titleText = titleEl?.innerText || titleEl?.textContent || titleEl?.getAttribute("title") || "";
         const titleArray = titleText.split(" | ");
         let title = titleText;
